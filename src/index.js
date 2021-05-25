@@ -25,6 +25,7 @@ class DomInspector {
 
 		this._cachedTarget = '';
 		this._throttleOnMove = throttle(this._onMove.bind(this), 100);
+		this._throttleOnClick = throttle(this._onClick.bind(this), 100);
 
 		this._init();
 	}
@@ -32,9 +33,11 @@ class DomInspector {
 		if (this.destroyed) return logger.warn('Inspector instance has been destroyed! Please redeclare it.');
 		this.overlay.parent.style.display = 'block';
 		this.root.addEventListener('mousemove', this._throttleOnMove);
+		this.root.addEventListener('click', this._throttleOnClick);
 	}
 	pause() {
 		this.root.removeEventListener('mousemove', this._throttleOnMove);
+		this.root.removeEventListener('click', this._throttleOnClick);
 	}
 	disable() {
 		this.overlay.parent.style.display = 'none';
@@ -42,6 +45,7 @@ class DomInspector {
 		this.overlay.parent.style.height = 0;
 		this.target = null;
 		this.root.removeEventListener('mousemove', this._throttleOnMove);
+		this.root.removeEventListener('click', this._throttleOnClick);
 	}
 	destroy() {
 		this.destroyed = true;
@@ -136,6 +140,9 @@ class DomInspector {
 		parent.appendChild(ele);
 		return ele;
 	}
+	_onClick(e) {
+        console.log(e.target.innerText);
+    }
 	_onMove(e) {
 		for (let i = 0; i < this.exclude.length; i += 1) {
 			const cur = this.exclude[i];

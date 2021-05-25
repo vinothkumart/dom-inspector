@@ -1,6 +1,6 @@
 /*
- * DomInspector v1.2.4-beta.0
- * (c) 2020 luoye <luoyefe@gmail.com>
+ * DomInspector v1.2.4
+ * (c) 2021 luoye <luoyefe@gmail.com>
  */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -16,12 +16,13 @@ function __$styleInject (css, returnValue) {
   var head = document.head || document.getElementsByTagName('head')[0];
   var style = document.createElement('style');
   style.type = 'text/css';
+  head.appendChild(style);
+  
   if (style.styleSheet){
     style.styleSheet.cssText = css;
   } else {
     style.appendChild(document.createTextNode(css));
   }
-  head.appendChild(style);
   return returnValue;
 }
 __$styleInject(".dom-inspector {\n    position: fixed;\n    pointer-events: none;\n}\n\n.dom-inspector>div {\n\tposition: absolute;\n}\n\n.dom-inspector .tips {\n\tbackground-color: #333740;\n\tfont-size: 0;\n\tline-height: 18px;\n\tpadding: 3px 10px;\n\tposition: fixed;\n\tborder-radius: 4px;\n\tdisplay: none;\n}\n\n.dom-inspector .tips.reverse{\n\n}\n\n.dom-inspector .tips .triangle {\n\twidth: 0;\n\theight: 0;\n\tposition: absolute;\n\tborder-top: 8px solid #333740;\n\tborder-right: 8px solid transparent;\n\tborder-bottom: 8px solid transparent;\n\tborder-left: 8px solid transparent;\n\tleft: 10px;\n\ttop: 24px;\n}\n\n.dom-inspector .tips.reverse .triangle {\n\tborder-top: 8px solid transparent;\n\tborder-right: 8px solid transparent;\n\tborder-bottom: 8px solid #333740;\n\tborder-left: 8px solid transparent;\n\tleft: 10px;\n\ttop: -16px;\n}\n\n.dom-inspector .tips>div {\n\tdisplay: inline-block;\n\tvertical-align: middle;\n\tfont-size: 12px;\n\tfont-family: Consolas, Menlo, Monaco, Courier, monospace;\n\toverflow: auto;\n}\n\n.dom-inspector .tips .tag {\n\tcolor: #e776e0;\n}\n\n.dom-inspector .tips .id {\n\tcolor: #eba062;\n}\n\n.dom-inspector .tips .class {\n\tcolor: #8dd2fb;\n}\n\n.dom-inspector .tips .line {\n\tcolor: #fff;\n}\n\n.dom-inspector .tips .size {\n\tcolor: #fff;\n}\n\n.dom-inspector-theme-default {\n\n}\n\n.dom-inspector-theme-default .margin {\n\tbackground-color: rgba(255, 81, 81, 0.75);\n}\n\n.dom-inspector-theme-default .border {\n\tbackground-color: rgba(255, 241, 81, 0.75);\n}\n\n.dom-inspector-theme-default .padding {\n\tbackground-color: rgba(81, 255, 126, 0.75);\n}\n\n.dom-inspector-theme-default .content {\n\tbackground-color: rgba(81, 101, 255, 0.75);\n}\n", undefined);
@@ -322,6 +323,7 @@ var DomInspector = function () {
 
 		this._cachedTarget = '';
 		this._throttleOnMove = throttle(this._onMove.bind(this), 100);
+		this._throttleOnClick = throttle(this._onClick.bind(this), 100);
 
 		this._init();
 	}
@@ -332,11 +334,13 @@ var DomInspector = function () {
 			if (this.destroyed) return exportObj.warn('Inspector instance has been destroyed! Please redeclare it.');
 			this.overlay.parent.style.display = 'block';
 			this.root.addEventListener('mousemove', this._throttleOnMove);
+			this.root.addEventListener('click', this._throttleOnClick);
 		}
 	}, {
 		key: 'pause',
 		value: function pause() {
 			this.root.removeEventListener('mousemove', this._throttleOnMove);
+			this.root.removeEventListener('click', this._throttleOnClick);
 		}
 	}, {
 		key: 'disable',
@@ -346,6 +350,7 @@ var DomInspector = function () {
 			this.overlay.parent.style.height = 0;
 			this.target = null;
 			this.root.removeEventListener('mousemove', this._throttleOnMove);
+			this.root.removeEventListener('click', this._throttleOnClick);
 		}
 	}, {
 		key: 'destroy',
@@ -453,6 +458,11 @@ var DomInspector = function () {
 			}, content);
 			parent.appendChild(ele);
 			return ele;
+		}
+	}, {
+		key: '_onClick',
+		value: function _onClick(e) {
+			console.log(e.target.innerText);
 		}
 	}, {
 		key: '_onMove',
